@@ -1,0 +1,14 @@
+package asgn2Passengers;
+
+import static org.junit.Assert.*;
+
+import org.junit.Test;
+
+public class FirstTests {
+
+	@Test
+	public void test() {
+		fail("Not yet implemented");
+	}
+
+}

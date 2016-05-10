@@ -1,0 +1,77 @@
+package asgn2Tests;
+
+
+import static org.junit.Assert.*;
+import org.junit.Test;
+
+import asgn2Passengers.First;
+import asgn2Passengers.PassengerException;
+
+public class FirstTests {
+	
+	@Test (expected = PassengerException.class)
+	public void ConstructorNegativeDepartureTimeExceptionTest() throws PassengerException {
+		int bookingTime = -1;
+		int DepartureTime = 1;
+		
+		First passenger = new First(bookingTime,DepartureTime);
+	}
+	
+	@Test
+	public void ConstructorZeroDepartureTimeExceptionTest() throws PassengerException {
+		int bookingTime = -1;
+		int DepartureTime = 1;
+		
+		First passenger = new First(bookingTime,DepartureTime);
+		
+		assertTrue(true);
+	}
+	
+	@Test (expected = PassengerException.class)
+	public void ConstructorZeroBookingTimeExceptionTest() throws PassengerException {
+		int bookingTime = 1;
+		int DepartureTime = 0;
+		
+		First passenger = new First(bookingTime,DepartureTime);
+	}
+	
+	@Test (expected = PassengerException.class)
+	public void ConstructorNegativeBookingTimeExceptionTest() throws PassengerException {
+		int bookingTime = 1;
+		int DepartureTime = -1;
+		
+		First passenger = new First(bookingTime,DepartureTime);
+	}
+	
+	
+	@Test (expected = PassengerException.class)
+	public void ConstructorBookingTimeLessThanDepartureTimeExceptionTest() throws PassengerException {
+		int bookingTime = 1;
+		int DepartureTime = 2;
+		
+		First passenger = new First(bookingTime,DepartureTime);
+	}
+	
+	@Test
+	public void ConstructorBookingTimeGreaterThanDepartureTimeExceptionTest() throws PassengerException {
+		int bookingTime = 2;
+		int DepartureTime = 1;
+		
+		First passenger = new First(bookingTime,DepartureTime);
+		
+		assertTrue(true);
+
+	}
+	
+	@Test
+	public void ConstructorBookingTimeEqualToDepartureTimeExceptionTest() throws PassengerException {
+		int bookingTime = 2;
+		int DepartureTime = 2;
+		
+		First passenger = new First(bookingTime,DepartureTime);
+		
+		assertTrue(true);
+
+	}
+
+}

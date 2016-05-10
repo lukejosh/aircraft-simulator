@@ -1,0 +1,15 @@
+package asgn2Tests;
+
+
+import static org.junit.Assert.*;
+import org.junit.Test;
+import asgn2Passengers.PassengerException;
+
+public class FirstTests {
+	
+	@Test (expected = PassengerException.class)
+	public void ConstructorDepartureTimeExceptionTest() throws PassengerException {
+		assertTrue(true);
+	}
+
+}
