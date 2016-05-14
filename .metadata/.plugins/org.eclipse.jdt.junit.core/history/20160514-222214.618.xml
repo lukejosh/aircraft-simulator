@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?><testrun name="asgn2Tests" project="AircraftSimulator" tests="83" started="83" failures="1" errors="0" ignored="0">
+  <testsuite name="asgn2Tests.FirstTests" time="0.01">
+    <testcase name="testConstructorNegativeDepartureTimeException" classname="asgn2Tests.FirstTests" time="0.0"/>
+    <testcase name="testQueuePassengerFromRefused" classname="asgn2Tests.FirstTests" time="0.0"/>
+    <testcase name="testCopyPassengerState" classname="asgn2Tests.FirstTests" time="0.0"/>
+    <testcase name="testCancelSeatFromNew" classname="asgn2Tests.FirstTests" time="0.0"/>
+    <testcase name="testQueuePassengerFromFlown" classname="asgn2Tests.FirstTests" time="0.0"/>
+    <testcase name="testConfirmSeatFromNewConfirmationTimeEqualToDepartureTime" classname="asgn2Tests.FirstTests" time="0.0"/>
+    <testcase name="testQueuePassengerFromNewZeroQueueTime" classname="asgn2Tests.FirstTests" time="0.0"/>
+    <testcase name="testGetBookingTime" classname="asgn2Tests.FirstTests" time="0.0"/>
+    <testcase name="testConfirmSeatFromFlown" classname="asgn2Tests.FirstTests" time="0.0"/>
+    <testcase name="testRefusePassengerFromNewZeroRefusalTime" classname="asgn2Tests.FirstTests" time="0.0"/>
+    <testcase name="testConfirmSeatFromQueuedGetState" classname="asgn2Tests.FirstTests" time="0.0"/>
+    <testcase name="testConfirmSeatFromQueuedGetTimes" classname="asgn2Tests.FirstTests" time="0.0"/>
+    <testcase name="testRefusePassengerFromNewGetState" classname="asgn2Tests.FirstTests" time="0.0"/>
+    <testcase name="testRefusePassengerFromNewGetTimes" classname="asgn2Tests.FirstTests" time="0.0"/>
+    <testcase name="testFlyPassengerFromConfirmedGetState" classname="asgn2Tests.FirstTests" time="0.001"/>
+    <testcase name="testFlyPassengerFromConfirmedGetTimes" classname="asgn2Tests.FirstTests" time="0.0"/>
+    <testcase name="testRefusePassengerFromNewRefusalTimeLessThanBookingTime" classname="asgn2Tests.FirstTests" time="0.0"/>
+    <testcase name="testCancelSeatFromConfirmedGetState" classname="asgn2Tests.FirstTests" time="0.0"/>
+    <testcase name="testCancelSeatFromConfirmedGetTimes" classname="asgn2Tests.FirstTests" time="0.0"/>
+    <testcase name="testGetConfirmationTime" classname="asgn2Tests.FirstTests" time="0.0"/>
+    <testcase name="testFirst" classname="asgn2Tests.FirstTests" time="0.0"/>
+    <testcase name="testIsNew" classname="asgn2Tests.FirstTests" time="0.0"/>
+    <testcase name="testConfirmSeatFromConfirmed" classname="asgn2Tests.FirstTests" time="0.0"/>
+    <testcase name="testRefusePassengerFromRefused" classname="asgn2Tests.FirstTests" time="0.0"/>
+    <testcase name="testQueuePassengerFromConfrimed" classname="asgn2Tests.FirstTests" time="0.0"/>
+    <testcase name="testToString" classname="asgn2Tests.FirstTests" time="0.0"/>
+    <testcase name="testFlyPassengerFromRefused" classname="asgn2Tests.FirstTests" time="0.0"/>
+    <testcase name="testCancelSeatFromConfirmedCancellationTimeGEqualToDepartureTime" classname="asgn2Tests.FirstTests" time="0.0"/>
+    <testcase name="testRefusePassengerFromNewRefusalTimeEqualToBookingTime" classname="asgn2Tests.FirstTests" time="0.0"/>
+    <testcase name="testConfirmSeatFromNewConfirmationTimeGreaterThanDepartureTime" classname="asgn2Tests.FirstTests" time="0.001"/>
+    <testcase name="testConfirmSeatFromNewGetState" classname="asgn2Tests.FirstTests" time="0.0"/>
+    <testcase name="testConfirmSeatFromNewGetTimes" classname="asgn2Tests.FirstTests" time="0.0"/>
+    <testcase name="testCancelSeatFromRefused" classname="asgn2Tests.FirstTests" time="0.0"/>
+    <testcase name="testQueuePassengerFromNewQueueTimeEqualToDepatureTime" classname="asgn2Tests.FirstTests" time="0.0"/>
+    <testcase name="testWasQueuedFalse" classname="asgn2Tests.FirstTests" time="0.0"/>
+    <testcase name="testUpgrade" classname="asgn2Tests.FirstTests" time="0.0"/>
+    <testcase name="testConfirmSeatFromNewZeroConfirmationTime" classname="asgn2Tests.FirstTests" time="0.001"/>
+    <testcase name="testIsConfirmed" classname="asgn2Tests.FirstTests" time="0.0"/>
+    <testcase name="testPassenger" classname="asgn2Tests.FirstTests" time="0.0"/>
+    <testcase name="testWasConfirmedFalse" classname="asgn2Tests.FirstTests" time="0.0"/>
+    <testcase name="testConfirmSeatFromNewNegativeConfirmationTime" classname="asgn2Tests.FirstTests" time="0.0"/>
+    <testcase name="testFirstConstructorNormalGetTimes" classname="asgn2Tests.FirstTests" time="0.0"/>
+    <testcase name="testFlyPassengerFromConfirmedPositiveDepartureTime" classname="asgn2Tests.FirstTests" time="0.0"/>
+    <testcase name="testWasQueuedTrue" classname="asgn2Tests.FirstTests" time="0.0"/>
+    <testcase name="testGetExitQueueTime" classname="asgn2Tests.FirstTests" time="0.0"/>
+    <testcase name="testFlyPassengerFromNew" classname="asgn2Tests.FirstTests" time="0.0"/>
+    <testcase name="testRefusePassengerFromNewNegativeRefusalTime" classname="asgn2Tests.FirstTests" time="0.001"/>
+    <testcase name="testGetEnterQueueTime" classname="asgn2Tests.FirstTests" time="0.0"/>
+    <testcase name="testConstructorBookingTimeGreaterThanDepartureTimeException" classname="asgn2Tests.FirstTests" time="0.0"/>
+    <testcase name="testFlyPassengerFromConfirmedNegativeDepartureTime" classname="asgn2Tests.FirstTests" time="0.0"/>
+    <testcase name="testConstructorBookingTimeEqualToDepartureTimeException" classname="asgn2Tests.FirstTests" time="0.0"/>
+    <testcase name="testCancelSeatFromConfirmedCancellationTimeGreaterThanDepartureTime" classname="asgn2Tests.FirstTests" time="0.001"/>
+    <testcase name="testFlyPassengerFromConfirmedZeroDepartureTime" classname="asgn2Tests.FirstTests" time="0.0"/>
+    <testcase name="testIsQueued" classname="asgn2Tests.FirstTests" time="0.0"/>
+    <testcase name="testRefusePassengerFromConfirmed" classname="asgn2Tests.FirstTests" time="0.0"/>
+    <testcase name="testConstructorBookingTimeLessThanDepartureTimeException" classname="asgn2Tests.FirstTests" time="0.0"/>
+    <testcase name="testQueuePassengerFromNewQueueTimeGreaterThanDepatureTime" classname="asgn2Tests.FirstTests" time="0.0"/>
+    <testcase name="testConstructorZeroBookingTimeException" classname="asgn2Tests.FirstTests" time="0.001"/>
+    <testcase name="testQueuePassengerFromNewNegativeQueueTime" classname="asgn2Tests.FirstTests" time="0.0"/>
+    <testcase name="testCancelSeatFromFlown" classname="asgn2Tests.FirstTests" time="0.0"/>
+    <testcase name="testCancelSeatFromConfirmedNegativeCancellationTime" classname="asgn2Tests.FirstTests" time="0.0"/>
+    <testcase name="testQueuePassengerFromNewGetState" classname="asgn2Tests.FirstTests" time="0.0"/>
+    <testcase name="testQueuePassengerFromNewGetTimes" classname="asgn2Tests.FirstTests" time="0.0"/>
+    <testcase name="testIsRefused" classname="asgn2Tests.FirstTests" time="0.0"/>
+    <testcase name="testRefusePassengerFromQueuedGetState" classname="asgn2Tests.FirstTests" time="0.001"/>
+    <testcase name="testRefusePassengerFromQueuedGetTimes" classname="asgn2Tests.FirstTests" time="0.0"/>
+    <testcase name="testConstructorZeroDepartureTimeException" classname="asgn2Tests.FirstTests" time="0.0"/>
+    <testcase name="testFirstConstructorNormalGetStates" classname="asgn2Tests.FirstTests" time="0.0"/>
+    <testcase name="testConfirmSeatFromRefused" classname="asgn2Tests.FirstTests" time="0.0"/>
+    <testcase name="testNoSeatsMsg" classname="asgn2Tests.FirstTests" time="0.0"/>
+    <testcase name="testGetPassID" classname="asgn2Tests.FirstTests" time="0.001"/>
+    <testcase name="testConstructorNegativeBookingTimeException" classname="asgn2Tests.FirstTests" time="0.0"/>
+    <testcase name="testCancelSeatFromQueued" classname="asgn2Tests.FirstTests" time="0.0"/>
+    <testcase name="testIsFlown" classname="asgn2Tests.FirstTests" time="0.0"/>
+    <testcase name="testRefusePassengerFromFlown" classname="asgn2Tests.FirstTests" time="0.0"/>
+    <testcase name="testQueuePassengerFromQueued" classname="asgn2Tests.FirstTests" time="0.0"/>
+    <testcase name="testGetDepartureTime" classname="asgn2Tests.FirstTests" time="0.001"/>
+    <testcase name="testFlyPassengerFromQueued" classname="asgn2Tests.FirstTests" time="0.0"/>
+    <testcase name="testCancelSeatFromConfirmedZeroCancellationTime" classname="asgn2Tests.FirstTests" time="0.0"/>
+    <testcase name="testWasConfirmedTrue" classname="asgn2Tests.FirstTests" time="0.001"/>
+  </testsuite>
+  <testsuite name="asgn2Tests.PremiumTests" time="0.006">
+    <testcase name="testUpgrade" classname="asgn2Tests.PremiumTests" time="0.001"/>
+    <testcase name="testPremiumIntInt" classname="asgn2Tests.PremiumTests" time="0.005">
+      <failure>java.lang.AssertionError&#13;
+	at org.junit.Assert.fail(Assert.java:86)&#13;
+	at org.junit.Assert.assertTrue(Assert.java:41)&#13;
+	at org.junit.Assert.assertTrue(Assert.java:52)&#13;
+	at asgn2Tests.PremiumTests.testPremiumIntInt(PremiumTests.java:73)&#13;
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)&#13;
+	at sun.reflect.NativeMethodAccessorImpl.invoke(Unknown Source)&#13;
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(Unknown Source)&#13;
+	at java.lang.reflect.Method.invoke(Unknown Source)&#13;
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:50)&#13;
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)&#13;
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:47)&#13;
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)&#13;
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:325)&#13;
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:78)&#13;
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:57)&#13;
+	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:290)&#13;
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:71)&#13;
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:288)&#13;
+	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:58)&#13;
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:268)&#13;
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:363)&#13;
+	at org.eclipse.jdt.internal.junit4.runner.JUnit4TestReference.run(JUnit4TestReference.java:86)&#13;
+	at org.eclipse.jdt.internal.junit.runner.TestExecution.run(TestExecution.java:38)&#13;
+	at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.runTests(RemoteTestRunner.java:459)&#13;
+	at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.runTests(RemoteTestRunner.java:675)&#13;
+	at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.run(RemoteTestRunner.java:382)&#13;
+	at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.main(RemoteTestRunner.java:192)&#13;
+&#13;
+</failure>
+    </testcase>
+    <testcase name="testNoSeatsMsg" classname="asgn2Tests.PremiumTests" time="0.0"/>
+  </testsuite>
+</testrun>
