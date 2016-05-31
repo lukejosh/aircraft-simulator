@@ -65,7 +65,12 @@ public abstract class Aircraft {
 	 * @throws AircraftException if isNull(flightCode) OR (departureTime <=0) OR ({first,business,premium,economy} <0)
 	 */
 	public Aircraft(String flightCode,int departureTime, int first, int business, int premium, int economy) throws AircraftException {
-		//Lots here 
+		this.flightCode = flightCode;
+		this.departureTime = departureTime;
+		this.firstCapacity = first;
+		this.businessCapacity = business;
+		this.premiumCapacity = premium;
+		this.economyCapacity = economy;
 		this.status = "";
 	}
 	
