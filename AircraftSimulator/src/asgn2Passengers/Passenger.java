@@ -72,7 +72,6 @@ public abstract class Passenger {
 	 * OR (departureTime < bookingTime) 
 	 */
 	public Passenger(int bookingTime, int departureTime) throws PassengerException  {
-		
 		// Check that input parameters are correct
 		if (bookingTime < 0) {
 			throw new PassengerException("Unable to construct passenger - Booking time cannot be less than zero");
@@ -83,7 +82,7 @@ public abstract class Passenger {
 		}
 		
 		// Initialise instance variables
-		this.passID = "" + Passenger.index; 
+		this.passID = "" + Passenger.index;
 		Passenger.index++;
 		
 		this.bookingTime = bookingTime;
@@ -99,12 +98,13 @@ public abstract class Passenger {
 	 * Simple no-argument constructor to support {@link #upgrade()}
 	 */
 	protected Passenger() {
-		
+
 	}
 	
 	/**
 	 * Transition passenger to New<br>
 	 * PRE: isConfirmed(this)<br>
+	 * POST: isNew(this) AND this.getBookingTime() == cancellationTime<br>
 	 * <ul>
 	 * <li>cancelSeat: Confirmed -> New; up until departureTime</li>
 	 * </ul>
@@ -147,15 +147,17 @@ public abstract class Passenger {
 		
 		// Update times
 		this.bookingTime = cancellationTime;
-
 	}
 
 	/**
 	 * Transition passenger to Confirmed seat<br>
 	 * PRE: isNew(this) OR inQueue(this)<br>
+	 * POST: isConfirmed(this) AND this.getConfirmationTime() == confirmationTime AND <br>
+	 * 	     this.getDepartureTime() == departureTime<br>
 	 * <ul>
 	 * <li>confirmSeat: New -> Confirmed</li>
 	 * <li>confirmSeat: Queued -> Confirmed; up until departureTime</li> 
+	 * <li>if isQueued(this), then POST: this.getExitQueueTime() == confirmationTime</li>
 	 * </ul>
 	 * 
 	 * @param confirmationTime <code>int</code> day when seat is confirmed
@@ -198,6 +200,7 @@ public abstract class Passenger {
 	/**
 	 * Transition passenger to Flown<br>
 	 * PRE: isConfirmed(this)<br>
+	 * POST: isFlown(this) AND this.getDepartureTime() == departureTime<br> 
 	 * <ul>
 	 * <li>flyPassenger:Confirmed -> Flown; finalised on departureTime</li>
 	 * </ul>
@@ -220,7 +223,7 @@ public abstract class Passenger {
 			// Something unexpected has happened - error in state transition logic
 			throw new PassengerException("Unable to perform flyPassenger operation - passenger is in unknown state");
 		}
-		
+						
 		// Check that cancellation time is correct
 		if(departureTime <= 0){
 			throw new PassengerException("Unable to perform flyPassenger operation - Departure time cannot be less than or equal to zero");
@@ -344,6 +347,8 @@ public abstract class Passenger {
 	/**
 	 * Transition passenger to Queued<br>
 	 * PRE: isNew(this)<br>
+	 * POST: isQueued(this) AND this.getEnterQueueTime() == queueTime AND <br>
+	 * this.getDepartureTime == departureTime<br>
 	 * <ul>
 	 * <li>queuePassenger: New -> Queued</li>
 	 * </ul>
@@ -390,9 +395,11 @@ public abstract class Passenger {
 	/**
 	 * Transition passenger to Refused<br>
 	 * PRE: isNew(this) OR isQueued(this) <br>
+	 * POST: isRefused(this)
 	 * <ul>
 	 * <li>refusePassenger:New -> Refused</li> 
      * <li>refusePassenger:Queued -> Refused; finalised on departureTime</li> 
+     * <li>if isQueued(this), then POST: this.getExitQueueTime() == refusalTime</li>
      * </ul>
      * 
 	 * @param refusalTime <code>int</code> holding refusal time  
@@ -423,7 +430,6 @@ public abstract class Passenger {
 		this.newState = false;
 		this.inQueue = false;
 		this.refused = true;
-		
 	}
 	
 	/* (non-Javadoc) (Supplied) 
@@ -484,7 +490,7 @@ public abstract class Passenger {
 	 */
 	protected void copyPassengerState(Passenger p) {
 		this.passID = p.passID; 
-		
+						
 		this.newState = p.newState;
 		this.confirmed = p.confirmed;
 		this.inQueue = p.inQueue;

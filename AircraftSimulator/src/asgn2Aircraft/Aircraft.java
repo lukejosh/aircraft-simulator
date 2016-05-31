@@ -120,8 +120,7 @@ public abstract class Aircraft {
 	 * @return <code>boolean</code> true if aircraft empty; false otherwise 
 	 */
 	public boolean flightEmpty() {
-		int totalPassengers = numEconomy + numPremium + numBusiness + numBusiness;
-		return (totalPassengers <= 0);
+		
 	}
 	
 	/**
@@ -130,8 +129,7 @@ public abstract class Aircraft {
 	 * @return <code>boolean</code> true if aircraft full; false otherwise 
 	 */
 	public boolean flightFull() {
-		int totalPassengers = numEconomy + numPremium + numBusiness + numBusiness;
-		return (totalPassengers >= capacity);
+		
 	}
 	
 	/**
@@ -172,7 +170,7 @@ public abstract class Aircraft {
 	 * 
 	 * @return <code>int</code> number of Economy Class passengers 
 	 */
-	public int getNumEonomy() {
+	public int getNumEconomy() {
 		return this.numEconomy;
 	}
 
@@ -288,11 +286,8 @@ public abstract class Aircraft {
 	 * then Premium, upgrading to fill spaces already available and those created 
 	 * by upgrades to First), and then finally, we do the same for Economy, upgrading 
 	 * where possible to Premium.  
-	 * 
-	 * @throws PassengerException if <code>Passenger</code> is in incorrect state 
-	 * See {@link asgn2Passengers.Passenger#upgrade()}
 	 */
-	public void upgradeBookings() throws PassengerException { 
+	public void upgradeBookings() { 
 		
 	}
 
