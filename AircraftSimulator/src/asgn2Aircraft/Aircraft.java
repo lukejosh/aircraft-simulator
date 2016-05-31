@@ -8,6 +8,7 @@ package asgn2Aircraft;
 
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import asgn2Passengers.Business;
@@ -72,6 +73,12 @@ public abstract class Aircraft {
 		this.premiumCapacity = premium;
 		this.economyCapacity = economy;
 		this.status = "";
+		
+		//Set confirmed passengers to 0
+		this.numFirst = 0;
+		this.numBusiness = 0;
+		this.numPremium = 0;
+		this.numEconomy = 0;
 	}
 	
 	/**
@@ -85,9 +92,14 @@ public abstract class Aircraft {
 	 * @throws AircraftException if <code>Passenger</code> is not recorded in aircraft seating 
 	 */
 	public void cancelBooking(Passenger p,int cancellationTime) throws PassengerException, AircraftException {
-		//Stuff here
+		if (!this.seats.contains(p)){
+			throw new AircraftException("Passenger is not currently booked on the flight");
+		}
+		
+		p.cancelSeat(cancellationTime);
 		this.status += Log.setPassengerMsg(p,"C","N");
-		//Stuff here
+		
+		this.seats.remove(p);
 	}
 
 	/**
@@ -100,10 +112,30 @@ public abstract class Aircraft {
 	 * OR confirmationTime OR departureTime is invalid. See {@link asgn2Passengers.Passenger#confirmSeat(int, int)}
 	 * @throws AircraftException if no seats available in <code>Passenger</code> fare class. 
 	 */
-	public void confirmBooking(Passenger p,int confirmationTime) throws AircraftException, PassengerException { 
-		//Stuff here
+	public void confirmBooking(Passenger p, int confirmationTime) throws AircraftException, PassengerException {
+		String type = p.getPassID().substring(0, 0);		
+		if(!this.seatsAvailable(p)){
+			throw new AircraftException("No seats available in chosen fare class");
+		}
+		
+		this.seats.add(p);
+		
+		switch(type){
+		case "F":
+			this.numFirst++;
+			break;
+		case "J":
+			this.numBusiness++;
+			break;
+		case "P":
+			this.numPremium++;
+			break;
+		case "Y":
+			this.numEconomy++;
+			break;
+		}
 		this.status += Log.setPassengerMsg(p,"N/Q","C");
-		//Stuff here
+		p.confirmSeat(confirmationTime, this.departureTime);
 	}
 	
 	/**
@@ -125,7 +157,12 @@ public abstract class Aircraft {
 	 * @return <code>boolean</code> true if aircraft empty; false otherwise 
 	 */
 	public boolean flightEmpty() {
-		
+		if (this.getNumPassengers() == 0){
+			return true;
+		}
+		else{
+			return false;
+		}
 	}
 	
 	/**
@@ -134,7 +171,12 @@ public abstract class Aircraft {
 	 * @return <code>boolean</code> true if aircraft full; false otherwise 
 	 */
 	public boolean flightFull() {
-		
+		if (this.capacity == this.getNumPassengers()){
+			return true;
+		}
+		else{
+			return false;
+		}
 	}
 	
 	/**
@@ -147,7 +189,9 @@ public abstract class Aircraft {
 	 * See {@link asgn2Passengers.Passenger#flyPassenger(int)}. 
 	 */
 	public void flyPassengers(int departureTime) throws PassengerException { 
-		
+		for(Passenger p: this.seats){
+			p.flyPassenger(departureTime);
+		}
 	}
 	
 	/**
@@ -157,7 +201,7 @@ public abstract class Aircraft {
 	 * @return <code>Bookings</code> object containing the status.  
 	 */
 	public Bookings getBookings() {
-		
+		return new Bookings(this.numFirst, this.numBusiness, this.numPremium, this.numEconomy, this.getNumPassengers(), this.capacity - this.getNumPassengers());
 	}
 	
 	/**
@@ -166,7 +210,7 @@ public abstract class Aircraft {
 	 * @return <code>int</code> number of Business Class passengers 
 	 */
 	public int getNumBusiness() {
-		
+		return this.numBusiness;
 	}
 	
 	
@@ -265,7 +309,24 @@ public abstract class Aircraft {
 	 * @return <code>boolean</code> true if seats in Class(p); false otherwise
 	 */
 	public boolean seatsAvailable(Passenger p) {		
+		int seatsAvailable = 0;
+		switch(p.getPassID().substring(0, 1)){
+		case "F":
+			seatsAvailable = this.numFirst;
+		case "J":
+			seatsAvailable = this.numBusiness;
+		case "P":
+			seatsAvailable = this.numPremium;
+		case "Y":
+			seatsAvailable = this.numEconomy;
+		}
 		
+		if(seatsAvailable > 0){
+			return true;
+		}
+		else{
+			return false;
+		}
 	}
 
 	/* 
@@ -291,9 +352,50 @@ public abstract class Aircraft {
 	 * then Premium, upgrading to fill spaces already available and those created 
 	 * by upgrades to First), and then finally, we do the same for Economy, upgrading 
 	 * where possible to Premium.  
+	 * @throws AircraftException 
+	 * @throws PassengerException 
 	 */
-	public void upgradeBookings() { 
+	public void upgradeBookings() throws PassengerException, AircraftException {
 		
+		if(this.firstCapacity > this.numFirst){ //attempt to fill first class cabin
+			Iterator<Passenger> seatIter = this.seats.iterator();
+			
+			while(seatIter.hasNext()){ //user iterator instead of for loop so seats can be changed dynamically
+				Passenger p = seatIter.next();
+						
+				if(p.getPassID().substring(0, 1) == "J"){ //only allow a business passenger to upgrade to first class
+					Passenger upgraded = p.upgrade();
+					
+					this.cancelBooking(p, this.departureTime);
+					this.confirmBooking(upgraded, this.departureTime);
+					
+					if(!this.seatsAvailable(upgraded)){ //all first class seats are taken
+						break;
+					}
+				}
+			}
+		}
+		
+		if (this.businessCapacity > this.numBusiness || this.firstCapacity > this.numFirst){
+			//attempt to fill business and first class cabins
+			
+			Iterator<Passenger> seatIter = this.seats.iterator();
+			
+			while(seatIter.hasNext()){
+				
+				Passenger p = seatIter.next();
+				if(this.getPassengerFareType(p) == "J"){
+					
+					if(this.businessCapacity < this.numBusiness){ //free business class spot
+						Passenger business_upgrade = p.upgrade();
+						
+						this.cancelBooking(p, this.departureTime);
+						this.confirmBooking(business_upgrade, confirmationTime);
+					}
+					
+				}
+			}
+		}
 	}
 
 	/**
@@ -320,5 +422,9 @@ public abstract class Aircraft {
 	private String noSeatsAvailableMsg(Passenger p) {
 		String msg = "";
 		return msg + p.noSeatsMsg(); 
+	}
+	
+	private String getPassengerFareType(Passenger p){
+		return p.getPassID().substring(0, 1);
 	}
 }
