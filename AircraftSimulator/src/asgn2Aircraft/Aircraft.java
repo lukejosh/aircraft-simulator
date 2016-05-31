@@ -119,6 +119,8 @@ public abstract class Aircraft {
 		case "Y":
 			this.numEconomy--;
 			break;
+		default:
+			System.out.println("WARNING");
 		}
 		
 	}
@@ -155,6 +157,8 @@ public abstract class Aircraft {
 		case "Y":
 			this.numEconomy++;
 			break;
+		default:
+			System.out.println("WARNING");
 		}
 
 	}
@@ -382,7 +386,7 @@ public abstract class Aircraft {
 	 * @throws AircraftException 
 	 * @throws PassengerException 
 	 */
-	public void upgradeBookings() throws PassengerException, AircraftException {
+	public void upgradeBookings(){
 		
 		if(!this.typeIsFull("F")){
 			//attempt to fill first class cabin
@@ -391,7 +395,15 @@ public abstract class Aircraft {
 				Passenger p = seatIter.next();
 						
 				if(this.getPassengerFareType(p) == "J"){ //only allow a business passenger to upgrade to first class
-					this.upgradePassenger(p, 1, this.departureTime);
+					try {
+						this.upgradePassenger(p, 1, this.departureTime);
+					} catch (PassengerException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (AircraftException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 					
 					if(this.typeIsFull("F")){ //all first class seats are taken
 						break;
@@ -408,14 +420,30 @@ public abstract class Aircraft {
 			while(seatIter.hasNext()){
 				
 				Passenger p = seatIter.next();
-				if(this.getPassengerFareType(p) == "J"){ //upgrade premium economy passengers
+				if(this.getPassengerFareType(p) == "P"){ //upgrade premium economy passengers
 					
 					if(!this.typeIsFull("J")){ //free business class spot
-						this.upgradePassenger(p, 1, this.departureTime);
+						try {
+							this.upgradePassenger(p, 1, this.departureTime);
+						} catch (PassengerException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (AircraftException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
 					}
 					
 					else if(!this.typeIsFull("F")){ //free first class spot
-						this.upgradePassenger(p, 2, this.departureTime);;
+						try {
+							this.upgradePassenger(p, 2, this.departureTime);
+						} catch (PassengerException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (AircraftException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						};
 					}
 					
 					else{ //business and first class cabins are full
@@ -436,15 +464,39 @@ public abstract class Aircraft {
 				if(this.getPassengerFareType(p) == "Y"){ //upgrade economy class passengers
 					
 					if(!this.typeIsFull("P")){ //upgrade to premium economy
-						this.upgradePassenger(p, 1, this.departureTime);
+						try {
+							this.upgradePassenger(p, 1, this.departureTime);
+						} catch (PassengerException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (AircraftException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
 					}
 					
 					else if(!this.typeIsFull("J")){ //upgrade to business class
-						this.upgradePassenger(p, 2, this.departureTime);
+						try {
+							this.upgradePassenger(p, 2, this.departureTime);
+						} catch (PassengerException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (AircraftException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
 					}
 					
 					else if(!this.typeIsFull("F")){ //upgrade to first class
-						this.upgradePassenger(p, 3, this.departureTime);
+						try {
+							this.upgradePassenger(p, 3, this.departureTime);
+						} catch (PassengerException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (AircraftException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
 					}
 					
 					else{
