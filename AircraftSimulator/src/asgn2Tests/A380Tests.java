@@ -122,7 +122,92 @@ public class A380Tests {
 		
 		assert(testPassenger.isNew());
 	}
+	
+	@Test
+	public void testCancelBookingDecrementsPassengerCountEconomy() throws AircraftException, PassengerException {
+		Passenger testPassenger = new Economy(1, 10);
+		Passenger testPassenger1 = new Economy(1, 10);
+		
+		regularA380.confirmBooking(testPassenger, 2);
+		regularA380.confirmBooking(testPassenger1, 2);
+		
+		regularA380.cancelBooking(testPassenger, 3);
+		
+		assertEquals(1, regularA380.getNumEconomy());
+	}
 
+	@Test
+	public void testCancelBookingDecrementsPassengerCountPremium() throws AircraftException, PassengerException {
+		Passenger testPassenger = new Premium(1, 10);
+		Passenger testPassenger1 = new Premium(1, 10);
+		
+		regularA380.confirmBooking(testPassenger, 2);
+		regularA380.confirmBooking(testPassenger1, 2);
+		
+		regularA380.cancelBooking(testPassenger, 3);
+		
+		assertEquals(1, regularA380.getNumPremium());
+	}
+	
+	@Test
+	public void testCancelBookingDecrementsPassengerCountBusiness() throws AircraftException, PassengerException {
+		Passenger testPassenger = new Business(1, 10);
+		Passenger testPassenger1 = new Business(1, 10);
+		
+		regularA380.confirmBooking(testPassenger, 2);
+		regularA380.confirmBooking(testPassenger1, 2);
+		
+		regularA380.cancelBooking(testPassenger, 3);
+		
+		assertEquals(1, regularA380.getNumBusiness());
+	}
+	
+	@Test
+	public void testCancelBookingDecrementsPassengerCountFirst() throws AircraftException, PassengerException {
+		Passenger testPassenger = new First(1, 10);
+		Passenger testPassenger1 = new First(1, 10);
+		
+		regularA380.confirmBooking(testPassenger, 2);
+		regularA380.confirmBooking(testPassenger1, 2);
+		
+		regularA380.cancelBooking(testPassenger, 3);
+		
+		assertEquals(1, regularA380.getNumFirst());
+	}
+
+
+	
+	@Test
+	public void testConfirmBookingIncrementsCountEconomy() throws PassengerException, AircraftException {
+		Passenger econPassenger = new Economy(1, 10);
+		regularA380.confirmBooking(econPassenger, 2);
+		
+		assertEquals(1, regularA380.getNumEconomy());
+	}
+	
+	@Test
+	public void testConfirmBookingIncrementsCountPremium() throws PassengerException, AircraftException {
+		Passenger premiumPassenger = new Premium(1, 10);
+		regularA380.confirmBooking(premiumPassenger, 2);
+		
+		assertEquals(1, regularA380.getNumPremium());
+	}
+	
+	@Test
+	public void testConfirmBookingIncrementsCountBusiness() throws PassengerException, AircraftException {
+		Passenger businessPassenger = new Business(1, 10);
+		regularA380.confirmBooking(businessPassenger, 2);
+		
+		assertEquals(1, regularA380.getNumBusiness());
+	}
+	
+	@Test
+	public void testConfirmBookingIncrementsCountFirst() throws PassengerException, AircraftException {
+		Passenger firstPassenger = new First(1, 10);
+		regularA380.confirmBooking(firstPassenger, 2);
+		
+		assertEquals(1, regularA380.getNumFirst());
+	}
 	
 	@Test
 	public void testConfirmBookingAddsPassenger() throws PassengerException, AircraftException {
@@ -195,6 +280,13 @@ public class A380Tests {
 		oneEconA380.flyPassengers(2);
 		
 		assert(testPassenger.isFlown());
+	}
+	
+	@Test(expected=PassengerException.class)
+	public void testFlyPassengersThrowsExceptionWhenPassengerIsNotConfirmed() throws AircraftException, PassengerException {
+		oneEconA380.confirmBooking(testPassenger, 1);
+		testPassenger.cancelSeat(2);
+		oneEconA380.flyPassengers(3);
 	}
 
 	@Test
@@ -297,5 +389,29 @@ public class A380Tests {
 			   !testA380.seatsAvailable(new Premium(1,10)) &&
 			   !testA380.seatsAvailable(new Economy(1,10)));
 	}
-
+	
+	@Test
+	public void testUpgradeBookingsPreservesNumPassengers() throws AircraftException, PassengerException {
+		for(int i = 0; i < 5; i++){
+			regularA380.confirmBooking(new First(1, 10), 2);
+		}
+		
+		for(int i = 0; i < 10; i++){
+			regularA380.confirmBooking(new Business(1, 10), 2);
+		}
+		
+		for(int i = 0; i < 30; i++){
+			regularA380.confirmBooking(new Premium(1,10), 2);
+		}
+		
+		for(int i = 0; i < 70; i++){
+			regularA380.confirmBooking(new Economy(1, 10), 2);
+		}
+		
+		int beforeCount = regularA380.getNumPassengers();
+		
+		regularA380.upgradeBookings();
+		
+		assertEquals(beforeCount, regularA380.getNumPassengers());
+	}
 }
