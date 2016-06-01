@@ -1,5 +1,6 @@
 /**
- * 
+ * This file forms part of the AircraftSimulator Project
+ * Assignment Two - CAB302 2016
  */
 package asgn2Passengers;
 

@@ -1,6 +1,3 @@
-/**
- * 
- */
 package asgn2Tests;
 
 import static org.junit.Assert.*;
