@@ -41,11 +41,18 @@ public class A380Tests {
 		for(int i = 0; i < 4; i++){
 			smallA380.confirmBooking(new Economy(1, 10), 10);
 		}
+		
+		assert(true);
 	}
 	
 	@Test(expected=AircraftException.class)
 	public void testA380ShortConstructorThrowsExceptionWithNullFlightCode() throws AircraftException {
 		A380 test = new A380(null, 2);
+	}
+	
+	@Test
+	public void willfail(){
+		assert(false);
 	}
 	
 	@Test(expected=AircraftException.class)
@@ -99,6 +106,15 @@ public class A380Tests {
 		
 		assertEquals(oneEconA380.getNumEconomy(), 0);
 	}
+	
+	@Test(expected=PassengerException.class)
+	public void testCancelBookingThrowsPassengerExceptionWhenPassengerIsNotConfirmed() throws AircraftException, PassengerException {
+		Passenger testPassenger = new Economy(1, 10);
+		oneEconA380.confirmBooking(testPassenger, 2);
+		testPassenger.cancelSeat(3);
+		
+		oneEconA380.cancelBooking(testPassenger, 4);
+	}
 
 	public void testCancelBookingSetsPassengerState() throws PassengerException, AircraftException {
 		oneEconA380.confirmBooking(testPassenger, 11);
@@ -120,6 +136,14 @@ public class A380Tests {
 		Passenger testPassenger1 = new Economy(0, 10);
 		
 		oneEconA380.confirmBooking(testPassenger, 0);
+		oneEconA380.confirmBooking(testPassenger1, 0);
+
+	}
+	
+	@Test(expected=PassengerException.class)
+	public void testConfirmBookingThrowsExceptionWhenPassengerIsConfirmed() throws PassengerException, AircraftException {
+		Passenger testPassenger1 = new Economy(0, 10);
+		testPassenger1.confirmSeat(1, 2);
 		oneEconA380.confirmBooking(testPassenger1, 0);
 
 	}
