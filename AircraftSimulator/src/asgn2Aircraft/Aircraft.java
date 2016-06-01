@@ -44,7 +44,7 @@ public abstract class Aircraft {
 		
 	protected int numFirst;
 	protected int numBusiness;
-	protected int numPremium; 
+	protected int numPremium;
 	protected int numEconomy; 
 
 	protected String flightCode;
@@ -65,8 +65,39 @@ public abstract class Aircraft {
 	 * @throws AircraftException if isNull(flightCode) OR (departureTime <=0) OR ({first,business,premium,economy} <0)
 	 */
 	public Aircraft(String flightCode,int departureTime, int first, int business, int premium, int economy) throws AircraftException {
-		//Lots here 
+		//Check input validity
+		if(flightCode == null){
+			throw new AircraftException("flightCode cannot be null");
+		}
+		
+		if(departureTime <= 0){
+			throw new AircraftException("Departure time cannot be negative");
+		}
+		
+		if(first < 0 || business < 0 || premium < 0 || economy < 0){
+			throw new AircraftException("Capacity of passengers cannot be negative");
+		}
+		
+		this.flightCode = flightCode;
+		this.departureTime = departureTime;
+		
+		//Set capacities
+		this.firstCapacity = first;
+		this.businessCapacity = business;
+		this.premiumCapacity = premium;
+		this.economyCapacity = economy;
+		this.capacity = first + business + premium + economy;
+
+		//Leave status for child class to implement
 		this.status = "";
+		
+		//Set confirmed passengers to 0
+		this.numFirst = 0;
+		this.numBusiness = 0;
+		this.numPremium = 0;
+		this.numEconomy = 0;
+		
+		this.seats = new ArrayList<Passenger>();
 	}
 	
 	/**
@@ -80,9 +111,16 @@ public abstract class Aircraft {
 	 * @throws AircraftException if <code>Passenger</code> is not recorded in aircraft seating 
 	 */
 	public void cancelBooking(Passenger p,int cancellationTime) throws PassengerException, AircraftException {
-		//Stuff here
+		if (!this.hasPassenger(p)){ //Ensure passenger is booked on the flight
+			throw new AircraftException("Passenger is not currently booked on the flight");
+		}
+		
+		p.cancelSeat(cancellationTime); //Set the passenger to be cancelled
 		this.status += Log.setPassengerMsg(p,"C","N");
-		//Stuff here
+		this.seats.remove(p);
+		
+		this.decrementPassengerCount(this.getPassengerFareType(p));
+		
 	}
 
 	/**
@@ -95,10 +133,16 @@ public abstract class Aircraft {
 	 * OR confirmationTime OR departureTime is invalid. See {@link asgn2Passengers.Passenger#confirmSeat(int, int)}
 	 * @throws AircraftException if no seats available in <code>Passenger</code> fare class. 
 	 */
-	public void confirmBooking(Passenger p,int confirmationTime) throws AircraftException, PassengerException { 
-		//Stuff here
+	public void confirmBooking(Passenger p, int confirmationTime) throws AircraftException, PassengerException {
+		if(!this.seatsAvailable(p)){ //Ensure there is a free seat
+			throw new AircraftException(this.noSeatsAvailableMsg(p));
+		}
+		
+		p.confirmSeat(confirmationTime, this.departureTime); //Set the passenger to confirmed
 		this.status += Log.setPassengerMsg(p,"N/Q","C");
-		//Stuff here
+		this.seats.add(p);
+		this.incrementPassengerCount(this.getPassengerFareType(p));
+
 	}
 	
 	/**
@@ -120,7 +164,12 @@ public abstract class Aircraft {
 	 * @return <code>boolean</code> true if aircraft empty; false otherwise 
 	 */
 	public boolean flightEmpty() {
-		
+		if (this.getNumPassengers() == 0){
+			return true;
+		}
+		else{
+			return false;
+		}
 	}
 	
 	/**
@@ -129,7 +178,12 @@ public abstract class Aircraft {
 	 * @return <code>boolean</code> true if aircraft full; false otherwise 
 	 */
 	public boolean flightFull() {
-		
+		if (this.capacity == this.getNumPassengers()){
+			return true;
+		}
+		else{
+			return false;
+		}
 	}
 	
 	/**
@@ -142,7 +196,9 @@ public abstract class Aircraft {
 	 * See {@link asgn2Passengers.Passenger#flyPassenger(int)}. 
 	 */
 	public void flyPassengers(int departureTime) throws PassengerException { 
-		
+		for(Passenger p: this.seats){
+			p.flyPassenger(departureTime);
+		}
 	}
 	
 	/**
@@ -152,7 +208,8 @@ public abstract class Aircraft {
 	 * @return <code>Bookings</code> object containing the status.  
 	 */
 	public Bookings getBookings() {
-		
+		int freeCapacity = this.capacity - this.getNumPassengers(); //Get number of empty seats on the plane
+		return new Bookings(this.numFirst, this.numBusiness, this.numPremium, this.numEconomy, this.getNumPassengers(), freeCapacity);
 	}
 	
 	/**
@@ -161,7 +218,7 @@ public abstract class Aircraft {
 	 * @return <code>int</code> number of Business Class passengers 
 	 */
 	public int getNumBusiness() {
-		
+		return this.numBusiness;
 	}
 	
 	
@@ -189,7 +246,7 @@ public abstract class Aircraft {
 	 * @return <code>int</code> number of Confirmed passengers 
 	 */
 	public int getNumPassengers() {
-		int totalPassengers = numEconomy + numPremium + numBusiness + numBusiness;
+		int totalPassengers = this.numEconomy + this.numPremium + this.numBusiness + this.numFirst;
 		return totalPassengers;
 	}
 	
@@ -209,7 +266,7 @@ public abstract class Aircraft {
 	 * @return <code>List<Passenger></code> object containing the passengers.  
 	 */
 	public List<Passenger> getPassengers() {
-		return this.seats;
+		return new ArrayList<Passenger>(this.seats);
 	}
 	
 	/**
@@ -260,7 +317,29 @@ public abstract class Aircraft {
 	 * @return <code>boolean</code> true if seats in Class(p); false otherwise
 	 */
 	public boolean seatsAvailable(Passenger p) {		
+		int numSeats = 0;
 		
+		switch(this.getPassengerFareType(p)){
+		case "F":
+			numSeats = this.firstCapacity - this.numFirst;
+			break;
+		case "J":
+			numSeats = this.businessCapacity - this.numBusiness;
+			break;
+		case "P":
+			numSeats = this.premiumCapacity - this.numPremium;
+			break;
+		case "Y":
+			numSeats = this.economyCapacity - this.numEconomy;
+			break;
+		}
+		
+		if(numSeats > 0){
+			return true;
+		}
+		else{
+			return false;
+		}
 	}
 
 	/* 
@@ -285,10 +364,70 @@ public abstract class Aircraft {
 	 * we consider Business passengers (upgrading if there is space in First), 
 	 * then Premium, upgrading to fill spaces already available and those created 
 	 * by upgrades to First), and then finally, we do the same for Economy, upgrading 
-	 * where possible to Premium.  
+	 * where possible to Premium. 
 	 */
-	public void upgradeBookings() { 
+	
+	public void upgradeBookings(){
 		
+		ArrayList<Passenger> businessPassengers = new ArrayList<Passenger>();
+		ArrayList<Passenger> premiumPassengers = new ArrayList<Passenger>();
+		ArrayList<Passenger> economyPassengers = new ArrayList<Passenger>();
+		
+		for(Passenger p: this.seats){
+			switch(this.getPassengerFareType(p)){
+			case "J":
+				businessPassengers.add(p);
+				break;
+			case "P":
+				premiumPassengers.add(p);
+				break;
+			case "Y":
+				economyPassengers.add(p);
+				break;
+			}
+		}
+		
+		if(!this.typeIsFull("F")){ //First class cabin is not fill
+			for(Passenger p: businessPassengers){
+				try {
+					this.upgradePassenger(p, this.departureTime);
+				} catch (PassengerException | AircraftException e) {
+					e.printStackTrace();
+				}
+				if(this.typeIsFull("F")){ //Stop searching when first class seats are filled
+					break;
+					
+				}
+			}
+		}
+
+		if (!this.typeIsFull("J")){ //Business class cabin is not filled
+			for(Passenger p: premiumPassengers){
+				try {
+					this.upgradePassenger(p, this.departureTime);
+				} catch (PassengerException | AircraftException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				if(this.typeIsFull("J")){
+					break;
+				}
+			}
+		}
+		
+		if (!this.typeIsFull("P")){ //Premium cabin is not filled
+			for(Passenger p: economyPassengers){
+				try {
+					this.upgradePassenger(p, this.departureTime);
+				} catch (PassengerException | AircraftException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				if(this.typeIsFull("P")){
+					break;
+				}
+			}
+		}
 	}
 
 	/**
@@ -316,4 +455,98 @@ public abstract class Aircraft {
 		String msg = "";
 		return msg + p.noSeatsMsg(); 
 	}
+	
+	/** 
+	 * Helper method to get a passengers type
+	 * @param p Passenger
+	 * @return type string type of passenger 
+	 */
+	private String getPassengerFareType(Passenger p){
+		String type = null;
+		if(p instanceof Economy){
+			type = "Y";
+		}
+		else if(p instanceof Business){
+			type = "J";
+		}
+		else if(p instanceof Premium){
+			type = "P";
+		}
+		else if(p instanceof First){
+			type = "F";
+		}
+		return type;
+	}
+	
+	/** 
+	 * Helper method to increment confirmed passenger count
+	 * @param type string the type of passenger to increment count for
+	 */
+	private void incrementPassengerCount(String type){
+		switch(type){
+		case "F":
+			this.numFirst++;
+			break;
+		case "J":
+			this.numBusiness++;
+			break;
+		case "P":
+			this.numPremium++;
+			break;
+		case "Y":
+			this.numEconomy++;
+			break;
+		}
+	}
+	
+	/** 
+	 * Helper method to decrement confirmed passenger count
+	 * @param type string the type of passenger to decrement count for
+	 */
+	private void decrementPassengerCount(String type){
+		switch(type){
+		case "F":
+			this.numFirst--;
+			break;
+		case "J":
+			this.numBusiness--;
+			break;
+		case "P":
+			this.numPremium--;
+			break;
+		case "Y":
+			this.numEconomy--;
+			break;
+		}
+	}
+	
+	/** 
+	 * Helper method to upgrade a passenger to the next highest tier
+	 * @param p Passenger the passenger to be upgraded
+	 * @throws AircraftException 
+	 * @throws PassengerException 
+	 */
+	private void upgradePassenger(Passenger p, int upgradeTime) throws PassengerException, AircraftException{
+		this.cancelBooking(p, upgradeTime);
+		Passenger new_passenger = p.upgrade();
+		this.confirmBooking(new_passenger, upgradeTime);
+		
+	}
+	
+	/** 
+	 * Helper method to determine if a fare type is full
+	 * @param type string fare type to check
+	 * @return boolean result true if fare type is full, false otherwise
+	 */
+	private boolean typeIsFull(String type){
+		boolean result = true;
+		
+		switch(type){
+			case "F": return this.firstCapacity == this.numFirst;
+			case "J": return this.businessCapacity == this.numBusiness;
+			case "P": return this.premiumCapacity == this.numPremium;
+			case "Y": return this.economyCapacity == this.numEconomy;
+		}
+		return result;
+	}	
 }

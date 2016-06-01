@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 /**
  * 
  * This file is part of the AircraftSimulator Project, written as 

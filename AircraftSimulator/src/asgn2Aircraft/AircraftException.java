@@ -24,4 +24,3 @@ public class AircraftException extends Exception {
 		super("Aircraft Exception: " + message);
 	}
 }
->>>>>>> 172eaf3df4a19bce5fc401fb711c2202ad3e4c21
