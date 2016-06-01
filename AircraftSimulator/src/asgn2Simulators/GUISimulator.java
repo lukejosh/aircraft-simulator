@@ -7,7 +7,6 @@
 package asgn2Simulators;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
@@ -16,19 +15,38 @@ import java.awt.HeadlessException;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
-import javax.swing.BorderFactory;
 import javax.swing.JButton;
-import javax.swing.JFormattedTextField;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JProgressBar;
+import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker.StateValue;
+import javax.swing.border.EmptyBorder;
+
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.ValueAxis;
+import org.jfree.chart.plot.XYPlot;
+import org.jfree.data.category.DefaultCategoryDataset;
+import org.jfree.data.time.Day;
+import org.jfree.data.time.DynamicTimeSeriesCollection;
+import org.jfree.data.time.Second;
+import org.jfree.data.time.TimeSeries;
+import org.jfree.data.time.TimeSeriesCollection;
+import org.jfree.data.xy.XYDataset;
+import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
+
 
 /**
  * @author hogan
@@ -37,148 +55,357 @@ import javax.swing.SwingUtilities;
 @SuppressWarnings("serial")
 public class GUISimulator extends JFrame implements ActionListener, Runnable {
 	
-	public static final int WIDTH = 600;
-	public static final int HEIGHT = 600;
+	public static final int WIDTH =  900;
+	public static final int HEIGHT = 900;
 	
-	private int logFontSize = 16;
-	private int btnFontSize = 24;
+	public static final String FONT_STYLE =  "Arial";
+	public static final int TITLE_FONT_SIZE =  22;
+	public static final int TEXT_FONT_SIZE = 16;
+	public static final int HEADING_FONT_SIZE = 20;
+	public static final int INPUT_FONT_SIZE = 18;
 	
-	private JPanel pnlTitle;
-	private JPanel pnlLogDisplay;
-	private JPanel pnlConstraints;
+	private String[] defaultValues;
 	
-	private JLabel lblTitle;
-	private JLabel lblSeed;
-	private JLabel lblFirstProb;
+	private JPanel tabbedPanel;
+	private JPanel titlePanel;
+	private JPanel inputPanel;
 	
-	private JTextField txtSeed;
-	private JTextField txtFirstProb;
+	// Display for error messages
+	private JTextArea displayText;           
 	
-	private JButton btnRun;
-	private JButton btnLoad;
-	private JButton btnUnload;
-	private JButton btnFind;
-	private JButton btnSwitch;
+	// Entry fields for simulation parameters
+	private JTextField seedText;       
+	private JTextField maxQueueSizeText;
+	private JTextField meanBookingsText;
+	private JTextField sdBookingsText;       
+	private JTextField firstProbText;
+	private JTextField businessProbText;       
+	private JTextField premiumProbText;       
+	private JTextField economyProbText;
+	private JTextField cancelProbText;
 	
-	private JTextArea txtLogOutput;
+	// Buttons
+	private JButton startButton;
+	private JButton stopButton;
 
-	public GUISimulator(String title) throws HeadlessException {
-		super(title); // This just sets the title of the JFrame
+	JProgressBar progressBar = new JProgressBar();
+	
+	XYSeriesCollection dataset1;
+	XYSeriesCollection dataset2;
+	DefaultCategoryDataset dataset3;
+	
+	public static void main(String[] args) {
+		GUISimulator gui = new GUISimulator("Aircraft Simulator", args);
+		SwingUtilities.invokeLater(gui);
+	}
+
+	public GUISimulator(String title, String[] args) throws HeadlessException {
+		super(title);
+		final int NUM_ARGS = 10;
+		this.defaultValues = args;
+		
+		if (args.length == NUM_ARGS) {
+					this.defaultValues = args;					
+		} else {
+			this.defaultValues = new String[NUM_ARGS];
+			defaultValues[0] = String.valueOf(Constants.DEFAULT_SEED);
+			defaultValues[1] = String.valueOf(Constants.DEFAULT_MAX_QUEUE_SIZE);
+			defaultValues[2] = String.valueOf(Constants.DEFAULT_DAILY_BOOKING_MEAN);
+			defaultValues[3] = String.valueOf(Constants.DEFAULT_DAILY_BOOKING_SD);
+			defaultValues[4] = String.valueOf(Constants.DEFAULT_FIRST_PROB);
+			defaultValues[5] = String.valueOf(Constants.DEFAULT_BUSINESS_PROB);
+			defaultValues[6] = String.valueOf(Constants.DEFAULT_PREMIUM_PROB);
+			defaultValues[7] = String.valueOf(Constants.DEFAULT_ECONOMY_PROB);
+			defaultValues[8] = String.valueOf(Constants.DEFAULT_CANCELLATION_PROB);
+		}
 	}
 
 	@Override
 	public void run() {
-		createGUI(); // Create GUI just adds the GUI components to the JFrame
-	}
-
-	public static void main(String[] args) {
-		// Sets the default look and feel of the JFrame
 		JFrame.setDefaultLookAndFeelDecorated(true);
-		
-		// Invokes the the JFrame and allows main() to finish
-		SwingUtilities.invokeLater(new GUISimulator("Aircraft Simulator"));
+		initialiseComponents();
 	}
-	
-	private void createGUI() { 
-		setSize(WIDTH, HEIGHT); 
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); 
-		setLayout(new BorderLayout());
 
-		// Create the component containers
-		pnlTitle = createPanel(Color.LIGHT_GRAY);
-		pnlLogDisplay = createPanel(Color.LIGHT_GRAY);
-		pnlConstraints = createPanel(Color.LIGHT_GRAY);
-		
-		// Add the containers to the JFrame
-		this.getContentPane().add(pnlTitle,BorderLayout.NORTH);
-		this.getContentPane().add(pnlLogDisplay,BorderLayout.CENTER);
-		this.getContentPane().add(pnlConstraints,BorderLayout.SOUTH);
-		
-		createTitlePanel(pnlTitle);
-		
-		// Add Constraints labels and text fields to the panel
-		createConstraintsPanel(pnlConstraints);
-		
-		createLogPanel(pnlLogDisplay);
-		
-		
-		
-		this.repaint();
-		this.setVisible(true);	
-	}
-	
 	@Override
-	public void actionPerformed(ActionEvent arg0) {
-		//Get event source
-		Object src=arg0.getSource();
-		//Consider the alternatives - not all active at once.
-		if(src==btnRun){
-				JButton btn = ((JButton) src);
-				txtLogOutput.setText(btn.getText().trim());
-				//JOptionPane.showMessageDialog(this,"A Stupid Warning Message","Wiring Class: Warning",JOptionPane.WARNING_MESSAGE);
-		}
+	public void actionPerformed(ActionEvent e) {
+		Object source = e.getSource(); 
+		if (source == startButton && validateInputs()) startSimulation();		 
 	}
 	
-	private JPanel createPanel(Color c) {
+	private void initialiseComponents(){	
+		this.setSize(WIDTH, HEIGHT); 
+		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); 
+		this.setLayout(new BorderLayout());
 		
-		//Create a JPanel object and store it in a local var
-		JPanel panel = new JPanel();
-		//set the background colour to that passed in c
-		panel.setBackground(c);
-		//Return the JPanel object	
-		return panel;
+		titlePanel = createTitlePanel();
+		tabbedPanel = createTabbedPanel();
+		inputPanel = createInputPanel();
+		
+		this.getContentPane().add(titlePanel,BorderLayout.NORTH);
+		this.getContentPane().add(tabbedPanel,BorderLayout.CENTER);
+		this.getContentPane().add(inputPanel,BorderLayout.SOUTH);
+		
+		setParametersFromArray(this.defaultValues);
+		
+		this.pack();
+		this.repaint();
+		this.setVisible(true);
 	}
 	
-	private void createTitlePanel(JPanel panel){	
+	private void startSimulation()
+	{
+		
+		GUIController task = new GUIController(displayText, dataset1, dataset2, dataset3, getParametersAsArray());
+		
+		task.addPropertyChangeListener(
+			new PropertyChangeListener() {
+				public  void propertyChange(PropertyChangeEvent event) {
+					switch (event.getPropertyName()) {
+					case "progress":
+					    progressBar.setValue((Integer)event.getNewValue());
+					    break;
+					 case "state":
+						 switch ((StateValue) event.getNewValue()) {
+					 		case STARTED:
+					 			clearDatasets();
+					 			progressBar.setIndeterminate(false);
+					 			setUserControlsState(true);
+					 			break;
+					 		case DONE:
+					 			progressBar.setIndeterminate(true);
+					 			progressBar.setValue(0);
+				 				setUserControlsState(false);
+				 				break;
+					 		case PENDING:
+					 				
+							default:
+								break;
+				          
+				          }
+						 break;
+					}
+				}
+			});
+		
+		 task.execute();
+	}
+	
+	private JPanel createTitlePanel(){
+		JPanel titlePanel = new JPanel();
+		
+		JLabel titleLabel = new JLabel(this.getTitle());
+		titleLabel.setFont(new Font(FONT_STYLE, Font.BOLD, TITLE_FONT_SIZE));	
+		titlePanel.add(titleLabel);
+		
+		return titlePanel;
+		
+	}
+	
+	private JPanel createTabbedPanel(){
+		JPanel mainPanel = new JPanel();
+		mainPanel.setLayout(new BorderLayout());
+		mainPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
+		
+		JTabbedPane tabbedPane = new JTabbedPane();
+		tabbedPane.setFont(new Font(FONT_STYLE, Font.PLAIN, HEADING_FONT_SIZE));
+		
+		// Create the panels for each tab
+		JPanel logPanel = createLogPanel();				
+		JPanel graph1Panel = createGraph1Panel();
+		JPanel graph2Panel = createGraph2Panel();
+		JPanel graph3Panel = createGraph3Panel();
+        
+		// Add the panels to the tabbed pane
+        tabbedPane.add("Log", logPanel);
+        tabbedPane.add("Graph 1", graph1Panel);
+        tabbedPane.add("Graph 2", graph2Panel);
+        tabbedPane.add("Graph 3", graph3Panel);
+        
+        // add the tabbed pane to the main panel
+        mainPanel.add(tabbedPane, BorderLayout.CENTER);
+				
+		return mainPanel;	
+	}
+	
+	private JPanel createInputPanel() {
+		JPanel inputPanel = new JPanel();
 		GridBagLayout layout = new GridBagLayout();
-		panel.setLayout(layout);
+		inputPanel.setLayout(layout);
 		
-		this.lblTitle = createLabel("Aircraft Simulator", JLabel.CENTER);
+		JPanel progressPanel = createProgressPanel();
+		JPanel parametersPanel = createParametersPanel();
+		JPanel buttonsPanel = createButtonsPanel();
+				
+		GridBagConstraints parameterConstraints = makeConstraints(10);
+		parameterConstraints.anchor = GridBagConstraints.WEST;
+		parameterConstraints.fill = GridBagConstraints.BOTH;
+		addToPanel(inputPanel, parametersPanel, parameterConstraints, 0, 0, 1, 1);
 		
-		GridBagConstraints constraints = getDefaultConstraints();
+		GridBagConstraints progressConstraints = makeConstraints(10);
+		progressConstraints.anchor = GridBagConstraints.WEST;
+		addToPanel(inputPanel, progressPanel, progressConstraints, 0, 1, 1, 1);
 		
-		addComponentToPanel(panel, this.lblTitle, constraints, 0, 0, 1, 1);
+		GridBagConstraints buttonsConstraints = makeConstraints(10);
+		buttonsConstraints.anchor = GridBagConstraints.EAST;
+		addToPanel(inputPanel, buttonsPanel, buttonsConstraints, 0, 1, 1, 1);
+				
+		return inputPanel;
 	}
 	
-	private void createConstraintsPanel(JPanel panel) {
-		// Add a grid layout to the panel
+	private JPanel createLogPanel(){
+		// Create and add the log info Panel to the parent panel
+		JPanel logPanel = new JPanel();
+		logPanel.setLayout(new BorderLayout());
+		
+		//displayText = new JTextArea(15, 40); // lines by columns
+		displayText = new JTextArea();
+		displayText.setEditable(false);
+		displayText.setLineWrap(true);
+		displayText.setFont(new Font(FONT_STYLE, Font.PLAIN, TEXT_FONT_SIZE));
+		displayText.setText("Set the initial simulation parameters and press 'Start'\n\n");
+	
+		JScrollPane displayScrollPane = new JScrollPane(displayText);	
+		logPanel.add(displayScrollPane, BorderLayout.CENTER);
+		
+		return logPanel;
+	}
+	
+	private JPanel createGraph1Panel(){
+		JPanel graphPanel = new JPanel();
+		graphPanel.setLayout(new BorderLayout());
+        
+        dataset1 = new XYSeriesCollection();
+        dataset1.addSeries(new XYSeries("First"));
+        dataset1.addSeries(new XYSeries("Business"));
+        dataset1.addSeries(new XYSeries("Premium"));
+        dataset1.addSeries(new XYSeries("Economy"));
+        dataset1.addSeries(new XYSeries("Total"));
+        dataset1.addSeries(new XYSeries("Empty"));
+        
+        JFreeChart chart = createChart(dataset1, "Graph1", "Days", "Number of Passengers");
+        graphPanel.add(new ChartPanel(chart), BorderLayout.CENTER);
+        
+        return graphPanel;
+	}
+	
+	private JPanel createGraph2Panel(){
+		JPanel graphPanel = new JPanel();
+		graphPanel.setLayout(new BorderLayout());
+        
+        dataset2 = new XYSeriesCollection();
+        dataset2.addSeries(new XYSeries("Queued"));
+        dataset2.addSeries(new XYSeries("Refused"));
+        
+        JFreeChart chart = createChart(dataset2, "Graph2", "Days", "Number of Passengers");
+        graphPanel.add(new ChartPanel(chart), BorderLayout.CENTER);
+        
+        return graphPanel;
+	}
+	
+	private JPanel createGraph3Panel(){
+		JPanel graphPanel = new JPanel();
+		graphPanel.setLayout(new BorderLayout());
+        
+        dataset3 = new DefaultCategoryDataset();
+        dataset3.addValue(0.0, "First", "Capacity");
+        dataset3.addValue(0.0, "First", "Queued");
+        dataset3.addValue(0.0, "First", "Refused");        
+        JFreeChart chart = ChartFactory.createBarChart("Graph 3", "Type", "Nunber of passengers", dataset3);
+        chart.removeLegend();
+        graphPanel.add(new ChartPanel(chart), BorderLayout.CENTER);
+        
+        return graphPanel;
+	}
+	
+	private JPanel createProgressPanel(){
+		JPanel progressPanel = new JPanel();
+		
+		progressPanel.add(progressBar);
+		progressBar.setIndeterminate(true);
+		progressBar.setStringPainted(true);
+		
+		JLabel progressLabel = new JLabel("Simulation Progress");
+		progressLabel.setFont(new Font(FONT_STYLE, Font.PLAIN, HEADING_FONT_SIZE));	
+		progressPanel.add(progressLabel);
+		
+		return progressPanel;
+	}
+	
+	private JPanel createParametersPanel(){
+		JPanel parametersPanel = new JPanel();
 		GridBagLayout layout = new GridBagLayout();
-		panel.setLayout(layout);
+		parametersPanel.setLayout(layout);
 		
-		//Create a constraint to be used as a default for all components
-		GridBagConstraints constraints = getDefaultConstraints();
+		seedText = addParameterToPanel(parametersPanel, "Random number seed:", 0, 0, 0);       
+		maxQueueSizeText = addParameterToPanel(parametersPanel,"Maximum queue size:", Constants.DEFAULT_MAX_QUEUE_SIZE, 0, 1);
+		meanBookingsText = addParameterToPanel(parametersPanel,"Mean number of daily bookings:", Constants.DEFAULT_DAILY_BOOKING_MEAN, 0, 2);
+		sdBookingsText = addParameterToPanel(parametersPanel,"SD daily bookings:", Constants.DEFAULT_DAILY_BOOKING_SD, 0, 3);       
+		firstProbText = addParameterToPanel(parametersPanel,"First class probability:", Constants.DEFAULT_FIRST_PROB, 3, 0);
+		businessProbText = addParameterToPanel(parametersPanel,"Business class probability:", Constants.DEFAULT_BUSINESS_PROB, 3, 1);     
+		premiumProbText = addParameterToPanel(parametersPanel,"Premium class probability:", Constants.DEFAULT_PREMIUM_PROB, 3, 2);       
+		economyProbText = addParameterToPanel(parametersPanel,"Economy class probability:", Constants.DEFAULT_ECONOMY_PROB, 3, 3);
+		cancelProbText = addParameterToPanel(parametersPanel,"Cancellation probability:", Constants.DEFAULT_CANCELLATION_PROB, 3, 4);
 		
-		this.btnRun = createButton("Run Simulation");
-		addComponentToPanel(panel, this.btnRun,constraints,1,10,1,1); 
-		
-		// Repeat this for all other constraints
-		// Seed input
-		this.lblSeed = createLabel("Seed:", JLabel.RIGHT);
-		this.txtSeed = createIntTextField(Constants.DEFAULT_SEED, 5);
-		addComponentToPanel(panel, this.lblSeed,constraints,0,0,1,1); 
-		addComponentToPanel(panel, this.txtSeed,constraints,1,0,1,1);
-		
-		// First class probability input
-		this.lblFirstProb = createLabel("First Class Probability:", JLabel.RIGHT);
-		this.txtFirstProb = createDoubleTextField(Constants.DEFAULT_FIRST_PROB, 5);
-		addComponentToPanel(panel, this.lblFirstProb,constraints,0,1,1,1); 
-		addComponentToPanel(panel, this.txtFirstProb,constraints,1,1,1,1);
+		return parametersPanel;
 	}
 	
-	private void createLogPanel(JPanel panel){	
-		GridBagLayout layout = new GridBagLayout();
-		panel.setLayout(layout);
+	private JPanel createButtonsPanel(){		
+		JPanel buttonsPanel = new JPanel();
 		
-		this.txtLogOutput = createTextArea();
+		// Button for starting the simulation
+		startButton = new JButton("Start");
+		startButton.addActionListener(this);
+		startButton.setFont(new Font(FONT_STYLE, Font.PLAIN, HEADING_FONT_SIZE));
+		buttonsPanel.add(startButton, makeConstraints(2));
 		
-		GridBagConstraints constraints = getDefaultConstraints();
-		
-		addComponentToPanel(panel, txtLogOutput, constraints, 0, 0, 1, 1);
+		return buttonsPanel;
 	}
 	
-	/* Simple function to add a component to a panel */
+	private JFreeChart createChart(final XYDataset dataset, String title, String xLabel, String yLabel) {
+        final JFreeChart result = ChartFactory.createXYLineChart(
+        		title, xLabel, yLabel, dataset);
+        final XYPlot plot = result.getXYPlot();
+        ValueAxis domain = plot.getDomainAxis();
+        domain.setAutoRange(true);
+        ValueAxis range = plot.getRangeAxis();
+        range.setAutoRange(true);
+        return result;
+    }
 	
-	private void addComponentToPanel(JPanel jp,Component c, GridBagConstraints constraints,int x, int y, int w, int h) {
+	private GridBagConstraints makeConstraints(int inset) {
+		//final Integer inset = 20; // pixels from edge of main frame
+		
+		GridBagConstraints constraints = new GridBagConstraints();
+		constraints.anchor = GridBagConstraints.WEST;
+		constraints.gridwidth = GridBagConstraints.REMAINDER;
+		constraints.weightx = 100;
+		constraints.weighty = 100;
+		constraints.insets = new Insets(inset, inset, inset, inset);
+		return constraints;
+	}
+	
+	private JTextField addParameterToPanel(JPanel panel, String label, Number defaultValue, int x, int y) {
+		int w = 1, h = 1;
+		
+		JTextField parameterText = new JTextField("" + defaultValue, defaultValue.toString().length());		
+		parameterText.setFont(new Font(FONT_STYLE, Font.PLAIN, INPUT_FONT_SIZE));
+		parameterText.setEditable(true);
+		parameterText.setHorizontalAlignment(JTextField.RIGHT); // flush left
+		
+		JLabel parameterLabel = new JLabel(label);
+		parameterLabel.setFont(new Font(FONT_STYLE, Font.PLAIN, INPUT_FONT_SIZE));
+		parameterLabel.setHorizontalAlignment(JTextField.LEFT); // flush right
+		
+		GridBagConstraints labelConstraints = makeConstraints(10);
+		labelConstraints.fill = GridBagConstraints.BOTH;
+		
+		addToPanel(panel, parameterLabel, labelConstraints, x,y,w,h);
+		addToPanel(panel, parameterText, labelConstraints, x+1,y,w,h);
+		
+		return parameterText;
+	}
+	
+	private void addToPanel(JPanel jp,Component c, GridBagConstraints constraints,int x, int y, int w, int h) {
 		constraints.gridx = x; 
 		constraints.gridy = y; 
 		constraints.gridwidth = w; 
@@ -186,79 +413,104 @@ public class GUISimulator extends JFrame implements ActionListener, Runnable {
 		jp.add(c, constraints);
 	}
 	
-	/* Simple function to get a default constraints object */
-	
-	private GridBagConstraints getDefaultConstraints() {		
-		GridBagConstraints constraints = new GridBagConstraints();
-		constraints.fill = GridBagConstraints.BOTH;
-		constraints.anchor = GridBagConstraints.WEST;	
-		constraints.insets = new Insets(5, 5, 5, 5);
-		constraints.weightx = 100;
-		constraints.weighty = 100;
+	private void clearDatasets(){
+		dataset1.getSeries(0).clear();
+		dataset1.getSeries(1).clear();
+		dataset1.getSeries(2).clear();
+		dataset1.getSeries(3).clear();
+		dataset1.getSeries(4).clear();
+		dataset1.getSeries(5).clear();
 		
-		return constraints;
-	}
-	
-	/* The following functions are used to create standard swing components */
-	
-	private JButton createButton(String str) {
-		//Create a JButton object and store it in a local var
-		JButton btn = new JButton();
-		//Set the button text to that passed in str
-		btn.setText(str);
-		btn.setFont(new Font("Arial",Font.BOLD,btnFontSize));
-		//Add the frame as an actionListener
-		btn.addActionListener(this);
-		//Return the JButton object
-		return btn;
-	}
-	
-	private JLabel createLabel(String labelText, int alignment) {
-		//Create a JLabel object and store it in a local var
-		JLabel lbl = new JLabel(labelText);
-		// Set the alignment of the text
-		lbl.setHorizontalAlignment(alignment);
-		lbl.setFont(new Font("Arial",Font.BOLD,btnFontSize));
-		//Return the JLabel object
-		return lbl; 
-	}
-	
-	private JFormattedTextField createDoubleTextField(Double value, int numColumns) {
-		//Create a JTextField object and store it in a local var
-		JFormattedTextField txt = new JFormattedTextField(DecimalFormat.getPercentInstance());
-		// Add the value to the Formatted text field
-		txt.setValue(value);
-		txt.setFont(new Font("Arial",Font.BOLD,btnFontSize));
-		//Add the frame as an actionListener
-		txt.addActionListener(this);
-		//Return the JTextField object
-		return txt; 
-	}
-	
-	private JFormattedTextField createIntTextField(int value, int numColumns) {
-		//Create a JTextField object and store it in a local var
-		JFormattedTextField txt = new JFormattedTextField(NumberFormat.getInstance());
-		// Add the value to the Formatted text field
-		txt.setValue(value);
-		txt.setFont(new Font("Arial",Font.BOLD,btnFontSize));
-		//Add the frame as an actionListener
-		txt.addActionListener(this);
-		//Return the JTextField object
-		return txt; 
-	}
-	
-	private JTextArea createTextArea() {		
-		JTextArea textArea = new JTextArea(); 
-		textArea.setEditable(false); 
-		textArea.setLineWrap(true);
-		textArea.setFont(new Font("Arial",Font.BOLD,logFontSize));
-		textArea.setBorder(BorderFactory.createEtchedBorder());
+		dataset2.getSeries(0).clear();
+		dataset2.getSeries(1).clear();
 		
-		return textArea;
+		dataset3.clear();
 	}
 	
+	private void setParametersFromArray(String[] args) {
+		seedText.setText(args[0]);
+		maxQueueSizeText.setText(args[1]);
+		meanBookingsText.setText(args[2]);
+		sdBookingsText.setText(args[3]);
+		firstProbText.setText(args[4]);
+		businessProbText.setText(args[5]);
+		premiumProbText.setText(args[6]);
+		economyProbText.setText(args[7]);
+		cancelProbText.setText(args[8]);
+	}
 	
-
+	private String[] getParametersAsArray(){
+		String[] array = new String[9];
+		
+		array[0] = seedText.getText().trim();
+		array[1] = maxQueueSizeText.getText().trim();
+		array[2] = meanBookingsText.getText().trim();
+		array[3] = sdBookingsText.getText().trim();
+		array[4] = firstProbText.getText().trim();
+		array[5] = businessProbText.getText().trim();
+		array[6] = premiumProbText.getText().trim();
+		array[7] = economyProbText.getText().trim();
+		array[8] = cancelProbText.getText().trim();
+		
+		return array;
+	}
 	
-
+	private boolean validateInputs(){
+		boolean validated = true;
+		String[] inputs = getParametersAsArray();
+		
+		int seed = Integer.parseInt(inputs[0]);
+		if(seed <= 0){
+			validated = false;
+			JOptionPane.showMessageDialog(this,"Seed must be greater than 0","Input Invalid",JOptionPane.WARNING_MESSAGE);	
+		}
+		
+		int maxQueueSize = Integer.parseInt(inputs[1]);
+		if(maxQueueSize <= 0){
+			validated = false;
+			JOptionPane.showMessageDialog(this,"Max Queue Size must be greater than 0","Input Invalid",JOptionPane.WARNING_MESSAGE);	
+		}
+		
+		double meanBookings = Double.parseDouble(inputs[2]);
+		if(meanBookings <= 0.0){
+			validated = false;
+			JOptionPane.showMessageDialog(this,"Mean Bookings must be greater than 0","Input Invalid",JOptionPane.WARNING_MESSAGE);	
+		}
+		
+		double sdBookings = Double.parseDouble(inputs[3]);
+		if(sdBookings <= 0.0){
+			validated = false;
+			JOptionPane.showMessageDialog(this,"Standard Deviation Bookings must be greater than 0","Input Invalid",JOptionPane.WARNING_MESSAGE);	
+		}
+		
+		double firstProb = Double.parseDouble(inputs[4]);
+		double businessProb = Double.parseDouble(inputs[5]);
+		double premiumProb = Double.parseDouble(inputs[6]);
+		double economyProb = Double.parseDouble(inputs[7]);
+		if((firstProb+businessProb+premiumProb+economyProb) != 1.0){
+			validated = false;
+			JOptionPane.showMessageDialog(this,"Passenger probabilities must add up to 1","Input Invalid",JOptionPane.WARNING_MESSAGE);	
+		}
+		
+		double cancelProb = Double.parseDouble(inputs[8]);
+		if(cancelProb > 1.0){
+			validated = false;
+			JOptionPane.showMessageDialog(this,"Cancel probability must not be greater than 1","Input Invalid",JOptionPane.WARNING_MESSAGE);	
+		}
+			
+		return validated;
+	}
+	
+	private void setUserControlsState(Boolean isRunning){
+		seedText.setEnabled(!isRunning);
+		maxQueueSizeText.setEnabled(!isRunning);
+		meanBookingsText.setEnabled(!isRunning);
+		sdBookingsText.setEnabled(!isRunning);       
+		firstProbText.setEnabled(!isRunning);
+		businessProbText.setEnabled(!isRunning);     
+		premiumProbText.setEnabled(!isRunning);       
+		economyProbText.setEnabled(!isRunning);
+		cancelProbText.setEnabled(!isRunning);    
+		startButton.setEnabled(!isRunning);
+	}	
 }
