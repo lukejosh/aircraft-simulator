@@ -41,18 +41,11 @@ public class A380Tests {
 		for(int i = 0; i < 4; i++){
 			smallA380.confirmBooking(new Economy(1, 10), 10);
 		}
-		
-		assert(true);
 	}
 	
 	@Test(expected=AircraftException.class)
 	public void testA380ShortConstructorThrowsExceptionWithNullFlightCode() throws AircraftException {
 		A380 test = new A380(null, 2);
-	}
-	
-	@Test
-	public void willfail(){
-		assert(false);
 	}
 	
 	@Test(expected=AircraftException.class)
@@ -383,11 +376,11 @@ public class A380Tests {
 		testA380.confirmBooking(new Premium(1, 10), 1);
 		testA380.confirmBooking(new Economy(1, 10), 1);
 		testA380.upgradeBookings();
-		
-		assert(testA380.seatsAvailable(new First(1, 10)) &&
+				
+		assertTrue(!testA380.seatsAvailable(new First(1, 10)) &&
 			   !testA380.seatsAvailable(new Business(1,10)) &&
 			   !testA380.seatsAvailable(new Premium(1,10)) &&
-			   !testA380.seatsAvailable(new Economy(1,10)));
+			   testA380.seatsAvailable(new Economy(1,10)));
 	}
 	
 	@Test
