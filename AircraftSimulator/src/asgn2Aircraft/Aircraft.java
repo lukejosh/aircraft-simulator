@@ -120,20 +120,7 @@ public abstract class Aircraft {
 		this.status += Log.setPassengerMsg(p,"C","N");
 		this.seats.remove(p);
 		
-		switch(this.getPassengerFareType(p)){ //Decrement the corresponding passenger confirmed count
-		case "F":
-			this.numFirst--;
-			break;
-		case "J":
-			this.numBusiness--;
-			break;
-		case "P":
-			this.numPremium--;
-			break;
-		case "Y":
-			this.numEconomy--;
-			break;
-		}
+		this.decrementPassengerCount(this.getPassengerFareType(p));
 		
 	}
 
@@ -155,21 +142,7 @@ public abstract class Aircraft {
 		p.confirmSeat(confirmationTime, this.departureTime); //Set the passenger to confirmed
 		this.status += Log.setPassengerMsg(p,"N/Q","C");
 		this.seats.add(p);
-		
-		switch(this.getPassengerFareType(p)){ //Increment the corresponding passenger confirmed count
-		case "F":
-			this.numFirst++;
-			break;
-		case "J":
-			this.numBusiness++;
-			break;
-		case "P":
-			this.numPremium++;
-			break;
-		case "Y":
-			this.numEconomy++;
-			break;
-		}
+		this.incrementPassengerCount(this.getPassengerFareType(p));
 
 	}
 	
@@ -556,6 +529,7 @@ public abstract class Aircraft {
 		this.cancelBooking(p, upgradeTime);
 		Passenger new_passenger = p.upgrade();
 		this.confirmBooking(new_passenger, upgradeTime);
+		
 	}
 	
 	/** 
