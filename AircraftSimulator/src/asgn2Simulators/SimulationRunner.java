@@ -8,6 +8,8 @@ package asgn2Simulators;
 
 import java.io.IOException;
 
+import javax.swing.SwingUtilities;
+
 import asgn2Aircraft.AircraftException;
 import asgn2Passengers.PassengerException;
 
@@ -26,14 +28,16 @@ public class SimulationRunner {
 	 * see {@link asgn2Simulators.SimulationRunner#printErrorAndExit()}
 	 */
 	public static void main(String[] args) {
-		final int NUM_ARGS = 9; 
+		boolean startGUI = true;
+		final int NUM_ARGS = 10; 
 		Simulator s = null; 
 		Log l = null; 
 		
 		try {
 			switch (args.length) {
 				case NUM_ARGS: {
-					s = createSimulatorUsingArgs(args); 
+					startGUI = (Integer.parseInt(args[9]) == 1);
+					s = createSimulatorUsingArgs(args); 					
 					break;
 				}
 				case 0: {
@@ -50,6 +54,11 @@ public class SimulationRunner {
 			System.exit(-1);
 		}
 	
+		if (startGUI){
+			GUISimulator gui = new GUISimulator("Aircraft Simulator", args);
+			SwingUtilities.invokeLater(gui);			
+		}
+		
 		//Run the simulation 
 		SimulationRunner sr = new SimulationRunner(s,l);
 		try {
@@ -57,7 +66,7 @@ public class SimulationRunner {
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(-1);
-		} 
+		}
 	}
 	/**
 	 * Helper to process args for Simulator  
@@ -87,8 +96,9 @@ public class SimulationRunner {
 	private static void printErrorAndExit() {
 		String str = "Usage: java asgn2Simulators.SimulationRunner [SIM Args]\n";
 		str += "SIM Args: seed maxQueueSize meanBookings sdBookings "; 
-		str += "firstProb businessProb premiumProb economyProb cancelProb\n";
-		str += "If no arguments, default values are used\n";
+		str += "firstProb businessProb premiumProb economyProb cancelProb runGUI\n";
+		str += "runGUI: 1 = yes, 0 = no\n";
+		str += "If no arguments, default values are used and GUI is started\n";
 		System.err.println(str);
 		System.exit(-1);
 	}

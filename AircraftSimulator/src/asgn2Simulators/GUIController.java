@@ -5,18 +5,24 @@ import java.util.List;
 import javax.swing.JTextArea;
 import javax.swing.SwingWorker;
 
+import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.time.DynamicTimeSeriesCollection;
+import org.jfree.data.xy.XYSeriesCollection;
 
 public class GUIController extends SwingWorker<String, GUIModel> {
 	
 	private Simulator sim;
 	private JTextArea textArea;
 	
-	DynamicTimeSeriesCollection dataset;
+	XYSeriesCollection dataset1;
+	XYSeriesCollection dataset2;
+	DefaultCategoryDataset dataset3;
 
-	GUIController(JTextArea textArea, DynamicTimeSeriesCollection dataset, String[] args) {
+	GUIController(JTextArea textArea, XYSeriesCollection d1, XYSeriesCollection d2, DefaultCategoryDataset d3, String[] args) {
 		this.textArea = textArea;
-		this.dataset = dataset;
+		this.dataset1 = d1;
+		this.dataset2 = d2;
+		this.dataset3 = d3;
 		try {
 			this.sim = createSimulatorUsingArgs(args);
 		} catch (SimulationException e) {
@@ -27,13 +33,16 @@ public class GUIController extends SwingWorker<String, GUIModel> {
 	@Override
 	protected String doInBackground() throws Exception {
 		GUIModel model = new GUIModel();
-			
-		try {				
+		try {	
 			this.sim.createSchedule();
+			
+			model.appendText("Start of Simulation\n");
+			model.appendText(sim.toString() + "\n");
+			model.appendText(sim.getFlights(Constants.FIRST_FLIGHT).initialState());
+			
 			
 			//Main simulation loop 
 			for (int time=0; time<=Constants.DURATION; time++) {
-				model.clearValues();
 				model.setTime(time);
 				this.sim.resetStatus(time); 
 				this.sim.rebookCancelledPassengers(time); 
@@ -44,15 +53,16 @@ public class GUIController extends SwingWorker<String, GUIModel> {
 					this.sim.processQueue(time);
 					this.sim.flyPassengers(time);
 					this.sim.updateTotalCounts(time); 
-					model.appendText(sim.getFlights(time).getStatus(time));
+					//model.appendText(sim.getFlights(time).getStatus(time));
 				} else {
 					this.sim.processQueue(time);
 				}
 				
 				//Log progress 
-				model.appendText(sim.getStatus(time));
+				//model.appendText(sim.getStatus(time));
 				model.appendText(sim.getSummary(time, (time >= Constants.FIRST_FLIGHT)));
-				model.setNumPassengers(sim.getTotalFlown());
+				
+				model = addDataToModel(model, sim, time, (time >= Constants.FIRST_FLIGHT));
 				
 				publish(model);	
 				
@@ -62,10 +72,10 @@ public class GUIController extends SwingWorker<String, GUIModel> {
 			
 			this.sim.finaliseQueuedAndCancelledPassengers(Constants.DURATION); 
 			
-			model.appendText(sim.getStatus(Constants.DURATION));
+			//model.appendText(sim.getStatus(Constants.DURATION));
 			model.appendText("End of simulation\n");
 			model.appendText(sim.finalState());			
-			model.appendText("-----\n");
+
 			
 		} catch (SimulationException e) {
 			model.appendText("Simulation failure: " + e.toString() + "\n");
@@ -77,12 +87,48 @@ public class GUIController extends SwingWorker<String, GUIModel> {
 		return null;
 	}
 	
+	private GUIModel addDataToModel(GUIModel model, Simulator simulator, int time, boolean isflying){
+		
+		try {
+			if (isflying){
+				model.setFirst(simulator.getFlightStatus(time).getNumFirst());		
+				model.setBusiness(simulator.getFlightStatus(time).getNumBusiness());
+				model.setPremium(simulator.getFlightStatus(time).getNumBusiness());
+				model.setEconomy(simulator.getFlightStatus(time).getNumEconomy());
+				model.setTotal(simulator.getFlightStatus(time).getTotal());
+				model.setEmpty(simulator.getFlightStatus(time).getAvailable());
+			}
+			
+			model.setQueued(simulator.numInQueue());
+			model.setRefused(simulator.numRefused());
+			
+		} catch (SimulationException e) {
+			e.printStackTrace();
+		}
+		
+		return model;
+	}
+	
 	@Override
 	  protected void process(final List<GUIModel> chunks) {
 	    // Updates the messages text area
 	    for (final GUIModel model : chunks) {
-	    	textArea.setText(textArea.getText() + model.getText());
-	    	dataset.addValue(0, model.getTime(), model.getNumPassengers());
+	    	textArea.setText(model.getText());
+	    	
+	    	dataset1.getSeries(0).add(model.getTime(), model.getFirst());
+	    	dataset1.getSeries(1).add(model.getTime(), model.getBusiness());
+	    	dataset1.getSeries(2).add(model.getTime(), model.getPremium());
+	    	dataset1.getSeries(3).add(model.getTime(), model.getEconomy());
+	    	dataset1.getSeries(4).add(model.getTime(), model.getTotal());
+	    	dataset1.getSeries(5).add(model.getTime(), model.getEmpty());
+	    	
+	    	dataset2.getSeries(0).add(model.getTime(), model.getQueued());
+	    	dataset2.getSeries(1).add(model.getTime(), model.getRefused());
+	    	
+	    	dataset3.addValue(model.getCapacity(), "First", "Capacity");
+	        dataset3.addValue(model.getTotalQueued(), "First", "Queued");
+	        dataset3.addValue(model.getRefused(), "First", "Refused");
+	       
 	    }
 	    
 	  }
