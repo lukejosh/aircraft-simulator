@@ -367,124 +367,170 @@ public abstract class Aircraft {
 	 * where possible to Premium. 
 	 */
 	
-	public void upgradeBooking(){
-		int emptyFirst = 0;
-		int emptyBusiness = 0;
-		int emptyPremium = 0;
-		int emptyEconomy = 0;
-		
-		for(Passenger p: this.seats){
-			switch(this.getPassengerFareType(p)){
-			case "F": emptyFirst++; break;
-			case "J": emptyBusiness++; break;
-			case "P": emptyPremium++; break;
-			case "Y": emptyEconomy++; break;
-			}
-		}
-		
-		emptyFirst = this.numFirst - emptyFirst;
-		emptyBusiness = this.numBusiness - emptyBusiness;
-		emptyPremium = this.numPremium - emptyPremium;
-		emptyEconomy = this.numEconomy - emptyEconomy;
-		
-		for(Passenger p: this.getPassengers()){
-			switch(this.getPassengerFareType(p)){
-			case "J":
-				if(emptyFirst > 0){
-					try {
-						this.upgradePassenger(p, this.departureTime);
-						emptyFirst--;
-						emptyBusiness++;
-					} catch (PassengerException | AircraftException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				}
-			case "P":
-				if(emptyBusiness > 0){
-					try {
-						this.upgradePassenger(p, this.departureTime);
-					} catch (PassengerException | AircraftException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-					emptyBusiness--;
-					emptyPremium++;
-				}
-			case "Y":
-				if(emptyPremium > 0){
-					try {
-						this.upgradePassenger(p, this.departureTime);
-					} catch (PassengerException | AircraftException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				}
-			}
-		}
-		
-	}
 //	public void upgradeBookings(){
-//		if(!this.typeIsFull("F")){ //First class cabin is not fill
-//			List<Passenger> passengers_copy = this.getPassengers(); //copy the passengers so we can edit the original			
-//			for(Passenger p: passengers_copy){
-//				if(this.getPassengerFareType(p) == "J"){ //Allow a business class passenger to be upgraded
-//					try {
-//						this.upgradePassenger(p, this.departureTime);
-//					} catch (PassengerException e) {
-//						// TODO Auto-generated catch block
-//						e.printStackTrace();
-//					} catch (AircraftException e) {
-//						// TODO Auto-generated catch block
-//						e.printStackTrace();
-//					}
-//					if(this.typeIsFull("F")){ //Stop searching when first class seats are filled
-//						break;
-//					}
-//				}
+//		int emptyFirst = 0;
+//		int emptyBusiness = 0;
+//		int emptyPremium = 0;
+//		
+//		ArrayList<Passenger> firstPassengers = new ArrayList<Passenger>();
+//		ArrayList<Passenger> businessPassengers = new ArrayList<Passenger>();
+//		ArrayList<Passenger> premiumPassengers = new ArrayList<Passenger>();
+//		ArrayList<Passenger> economyPassengers = new ArrayList<Passenger>();
+//		System.out.println("PASS BEFORE: " + Integer.toString(this.getNumPassengers()));
+//		ArrayList<ArrayList<Passenger>> arrays = new ArrayList<ArrayList<Passenger>>();
+//		
+//		for(Passenger p: this.seats){
+//			switch(this.getPassengerFareType(p)){
+//			case "F":
+//				firstPassengers.add(p);
+//				break;
+//			case "J":
+//				businessPassengers.add(p);
+//				break;
+//			case "P":
+//				premiumPassengers.add(p);
+//				break;
+//			case "Y":
+//				economyPassengers.add(p);
 //			}
 //		}
+//		
+//		arrays.add(businessPassengers);
+//		arrays.add(premiumPassengers);
+//		arrays.add(economyPassengers);
 //
-//		if (!this.typeIsFull("J")){ //Business class cabin is not filled
-//			List<Passenger> passengers_copy = this.getPassengers();
-//			for(Passenger p: passengers_copy){
-//				if(this.getPassengerFareType(p) == "P"){ //upgrade premium economy passengers
-//					try {
-//						this.upgradePassenger(p, this.departureTime);
-//					} catch (PassengerException e) {
-//						// TODO Auto-generated catch block
-//						e.printStackTrace();
-//					} catch (AircraftException e) {
-//						// TODO Auto-generated catch block
-//						e.printStackTrace();
+//		emptyFirst = this.firstCapacity - this.numFirst;
+//		emptyBusiness = this.businessCapacity - this.numBusiness;
+//		emptyPremium = this.premiumCapacity - this.numPremium;
+//		int tot = 0;
+//		for(ArrayList<Passenger> arr: arrays){
+//			tot += arr.size();
+//		}
+//		System.out.println("PASS AFTER: " + Integer.toString(tot));
+//		
+//		int firstToFill;
+//		if(this.numBusiness < emptyFirst){
+//			firstToFill = this.numBusiness;
+//		}
+//		else{
+//			firstToFill = emptyFirst;
+//		}
+//		
+//		int businessToFill;
+//		if(this.numPremium < (emptyBusiness + firstToFill)){
+//			businessToFill = this.numPremium;
+//		}
+//		else{
+//			businessToFill = emptyBusiness + firstToFill;
+//		}
+//		
+//		int premiumToFill;
+//		
+//		if(this.numEconomy < emptyPremium + businessToFill){
+//			premiumToFill = this.numEconomy;
+//		}
+//		else{
+//			premiumToFill = emptyPremium + businessToFill;
+//		}
+//		
+//		for(ArrayList<Passenger> array: arrays){
+//			for(Passenger p: array){
+//				switch(this.getPassengerFareType(p)){
+//				case "J":
+//					if(firstToFill > 0){
+//						try {
+//							this.upgradePassenger(p, this.departureTime);
+//							firstToFill--;
+//						} catch (PassengerException | AircraftException e) {
+//							e.printStackTrace();
+//						}
 //					}
-//					if(this.typeIsFull("J")){
-//						break;
+//				case "P":
+//					if(businessToFill > 0){
+//						try {
+//							this.upgradePassenger(p, this.departureTime);
+//							businessToFill--;
+//						} catch (PassengerException | AircraftException e) {
+//							e.printStackTrace();
+//						}
+//					}
+//				case "Y":
+//					if(premiumToFill > 0){
+//						try {
+//							this.upgradePassenger(p, this.departureTime);
+//							premiumToFill--;
+//						} catch (PassengerException | AircraftException e) {
+//							e.printStackTrace();
+//						}
 //					}
 //				}
 //			}
 //		}
 //		
-//		if (!this.typeIsFull("P")){ //Premium cabin is not filled
-//			List<Passenger> passengers_copy = this.getPassengers();			
-//			for(Passenger p: passengers_copy){
-//				if(this.getPassengerFareType(p) == "Y"){
-//					try {
-//						this.upgradePassenger(p, this.departureTime);
-//					} catch (PassengerException e) {
-//						// TODO Auto-generated catch block
-//						e.printStackTrace();
-//					} catch (AircraftException e) {
-//						// TODO Auto-generated catch block
-//						e.printStackTrace();
-//					}
-//					if(this.typeIsFull("P")){
-//						break;
-//					}
-//				}
-//			}
-//		}
+//		System.out.println("END PASS: " + Integer.toString(this.seats.size()));
 //	}
+	public void upgradeBookings(){
+		
+		ArrayList<Passenger> businessPassengers = new ArrayList<Passenger>();
+		ArrayList<Passenger> premiumPassengers = new ArrayList<Passenger>();
+		ArrayList<Passenger> economyPassengers = new ArrayList<Passenger>();
+		
+		for(Passenger p: this.seats){
+			switch(this.getPassengerFareType(p)){
+			case "J":
+				businessPassengers.add(p);
+				break;
+			case "P":
+				premiumPassengers.add(p);
+				break;
+			case "Y":
+				economyPassengers.add(p);
+				break;
+			}
+		}
+		
+		if(!this.typeIsFull("F")){ //First class cabin is not fill
+			for(Passenger p: businessPassengers){
+				try {
+					this.upgradePassenger(p, this.departureTime);
+				} catch (PassengerException | AircraftException e) {
+					e.printStackTrace();
+				}
+				if(this.typeIsFull("F")){ //Stop searching when first class seats are filled
+					break;
+					
+				}
+			}
+		}
+
+		if (!this.typeIsFull("J")){ //Business class cabin is not filled
+			for(Passenger p: premiumPassengers){
+				try {
+					this.upgradePassenger(p, this.departureTime);
+				} catch (PassengerException | AircraftException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				if(this.typeIsFull("J")){
+					break;
+				}
+			}
+		}
+		
+		if (!this.typeIsFull("P")){ //Premium cabin is not filled
+			for(Passenger p: economyPassengers){
+				try {
+					this.upgradePassenger(p, this.departureTime);
+				} catch (PassengerException | AircraftException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				if(this.typeIsFull("P")){
+					break;
+				}
+			}
+		}
+	}
 
 	/**
 	 * Simple String method for the Aircraft ID 
