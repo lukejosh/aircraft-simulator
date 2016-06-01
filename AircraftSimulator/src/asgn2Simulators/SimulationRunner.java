@@ -20,7 +20,7 @@ import asgn2Passengers.PassengerException;
  * @author hogan
  *
  */ 
-public class SimulationRunner {
+public class SimulationRunner { 
 	/**
 	 * Main program for the simulation 
 	 * 

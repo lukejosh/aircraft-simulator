@@ -460,25 +460,25 @@ public class GUISimulator extends JFrame implements ActionListener, Runnable {
 		String[] inputs = getParametersAsArray();
 		
 		int seed = Integer.parseInt(inputs[0]);
-		if(seed <= 0){
+		if(seed < 0){
 			validated = false;
 			JOptionPane.showMessageDialog(this,"Seed must be greater than 0","Input Invalid",JOptionPane.WARNING_MESSAGE);	
 		}
 		
 		int maxQueueSize = Integer.parseInt(inputs[1]);
-		if(maxQueueSize <= 0){
+		if(maxQueueSize < 0){
 			validated = false;
 			JOptionPane.showMessageDialog(this,"Max Queue Size must be greater than 0","Input Invalid",JOptionPane.WARNING_MESSAGE);	
 		}
 		
 		double meanBookings = Double.parseDouble(inputs[2]);
-		if(meanBookings <= 0.0){
+		if(meanBookings < 0.0){
 			validated = false;
 			JOptionPane.showMessageDialog(this,"Mean Bookings must be greater than 0","Input Invalid",JOptionPane.WARNING_MESSAGE);	
 		}
 		
 		double sdBookings = Double.parseDouble(inputs[3]);
-		if(sdBookings <= 0.0){
+		if(sdBookings < 0.0){
 			validated = false;
 			JOptionPane.showMessageDialog(this,"Standard Deviation Bookings must be greater than 0","Input Invalid",JOptionPane.WARNING_MESSAGE);	
 		}
